@@ -1,1 +1,1 @@
-# barberia-api
+# barberia-cola-virtual
