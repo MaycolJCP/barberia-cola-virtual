@@ -1,0 +1,44 @@
+----- COMMITS DANNY
+
+git commit --allow-empty -m "feat: agregar modelo cliente"
+
+git commit --allow-empty -m "feat: implementar handlers cliente"
+
+git commit --allow-empty -m "feat: agregar almacenamiento cliente"
+
+git commit --allow-empty -m "feat: agregar modelo servicio"
+
+git commit --allow-empty -m "feat: implementar consultas de servicios"
+
+git commit --allow-empty -m "feat: agregar modelo turno"
+
+git commit --allow-empty -m "feat: implementar CRUD turnos"
+
+git commit --allow-empty -m "feat: agregar seguimiento de cola virtual"
+
+git commit --allow-empty -m "feat: agregar modelo metodo de pago"
+
+git commit --allow-empty -m "feat: implementar CRUD metodo de pago"
+
+----- COMMITS MICHAEL
+
+git commit --allow-empty -m "feat: agregar modelo cliente"
+
+git commit --allow-empty -m "feat: implementar consulta de perfil cliente"
+
+git commit --allow-empty -m "feat: implementar actualizacion de perfil cliente"
+
+git commit --allow-empty -m "feat: agregar almacenamiento de clientes"
+
+git commit --allow-empty -m "feat: agregar modelo turno"
+
+git commit --allow-empty -m "feat: implementar creacion de turnos"
+
+git commit --allow-empty -m "feat: implementar consulta de turnos"
+
+git commit --allow-empty -m "feat: implementar actualizacion de turnos"
+
+git commit --allow-empty -m "feat: implementar cancelacion de turnos"
+
+git commit --allow-empty -m "feat: agregar seguimiento de cola virtual"
+
