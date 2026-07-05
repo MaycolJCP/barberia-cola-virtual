@@ -48,21 +48,38 @@ func (m *MockTurnosRepositoryCompleto) Delete(id uint) error {
 }
 
 func (m *MockTurnosRepositoryCompleto) CreateSeguimiento(s *models.SeguimientoTurno) error {
+	if m.SimulateError {
+		return errors.New("db error")
+	}
 	return nil
 }
-func (m *MockTurnosRepositoryCompleto) CreateNotificacion(n *models.Notificacion) error { return nil }
+
+func (m *MockTurnosRepositoryCompleto) CreateNotificacion(n *models.Notificacion) error {
+	if m.SimulateError {
+		return errors.New("db error")
+	}
+	return nil
+}
+
 func (m *MockTurnosRepositoryCompleto) GetSeguimientos() ([]models.SeguimientoTurno, error) {
-	return nil, nil
+	if m.SimulateError {
+		return nil, errors.New("db error")
+	}
+	return []models.SeguimientoTurno{{TurnoID: 1, Posicion: 1}}, nil
 }
+
 func (m *MockTurnosRepositoryCompleto) GetNotificaciones() ([]models.Notificacion, error) {
-	return nil, nil
+	if m.SimulateError {
+		return nil, errors.New("db error")
+	}
+	return []models.Notificacion{{TurnoID: 1, Mensaje: "Tu turno se acerca"}}, nil
 }
 
 // ============================================================================
-// SUITE DE 5 PRUEBAS UNITARIAS REQUERIDAS PARA EL MÓDULO DE TURNOS
+// SUITE DE 10 PRUEBAS UNITARIAS REQUERIDAS (RÚBRICA HITO 3 - COBERTURA >= 50%)
 // ============================================================================
 
-// 1. Camino Feliz: Registro correcto de un turno con ID de cliente y servicio válidos
+// 1. Camino Feliz: Registro correcto de un turno con IDs válidos
 func TestCreateTurno_Valido(t *testing.T) {
 	mockRepo := &MockTurnosRepositoryCompleto{SimulateError: false}
 	service := NewTurnoService(mockRepo)
@@ -82,14 +99,14 @@ func TestCreateTurno_Valido(t *testing.T) {
 	}
 }
 
-// 2. Validación de Regla de Negocio: Rechazo de turnos con IDs en cero o negativos
+// 2. Validación de Regla de Negocio: Rechazo de turnos con IDs en cero
 func TestCreateTurno_Invalido(t *testing.T) {
 	mockRepo := &MockTurnosRepositoryCompleto{SimulateError: false}
 	service := NewTurnoService(mockRepo)
 
 	turnoInvalido := models.Turno{
 		ClienteID:  0,
-		ServicioID: 0, // CAMBIADO: 0 es un uint válido para Go, pero inválido para tu regla de negocio
+		ServicioID: 0,
 	}
 
 	_, ok := service.CreateTurno(turnoInvalido)
@@ -98,7 +115,7 @@ func TestCreateTurno_Invalido(t *testing.T) {
 	}
 }
 
-// 3. Error de Infraestructura: Error al intentar persistir el turno en la BD
+// 3. Error de Infraestructura: Fallo de escritura en la persistencia del Repositorio
 func TestCreateTurno_ErrorBaseDatos(t *testing.T) {
 	mockRepo := &MockTurnosRepositoryCompleto{SimulateError: true}
 	service := NewTurnoService(mockRepo)
@@ -125,7 +142,7 @@ func TestGetTurnoByID_Exitoso(t *testing.T) {
 	}
 }
 
-// 5. Flujo Alterno de Actualización: Modificar de forma correcta un turno existente
+// 5. Flujo Alterno de Actualización: Modificar un turno existente de forma correcta
 func TestUpdateTurno_Exitoso(t *testing.T) {
 	mockRepo := &MockTurnosRepositoryCompleto{SimulateError: false}
 	service := NewTurnoService(mockRepo)
@@ -139,5 +156,69 @@ func TestUpdateTurno_Exitoso(t *testing.T) {
 	_, ok := service.UpdateTurno(turnoAEditar)
 	if !ok {
 		t.Error("Se esperaba que la actualizacion del turno fuera exitosa")
+	}
+}
+
+// 6. Búsqueda Fallida (Edge Case): Buscar un turno que no existe en el sistema
+func TestGetTurnoByID_NoEncontrado(t *testing.T) {
+	mockRepo := &MockTurnosRepositoryCompleto{SimulateError: false}
+	service := NewTurnoService(mockRepo)
+
+	_, ok := service.GetTurnoByID(999) // ID gatillo configurado en tu mock
+	if ok {
+		t.Error("Se esperaba un fallo (false) al buscar un turno inexistente")
+	}
+}
+
+// 7. Listar todos los Turnos de la Cola Virtual (Firma corregida a error estándar)
+func TestGetTurnos_Exitoso(t *testing.T) {
+	mockRepo := &MockTurnosRepositoryCompleto{SimulateError: false}
+	service := NewTurnoService(mockRepo)
+
+	lista, err := service.GetTurnos()
+	if err != nil {
+		t.Errorf("No se esperaba un error al listar turnos: %v", err)
+	}
+	if len(lista) == 0 {
+		t.Error("La lista devuelta no debería estar vacía")
+	}
+}
+
+// 8. Eliminación Correcta de un Turno por su identificador
+func TestDeleteTurno_Exitoso(t *testing.T) {
+	mockRepo := &MockTurnosRepositoryCompleto{SimulateError: false}
+	service := NewTurnoService(mockRepo)
+
+	ok := service.DeleteTurno(1)
+	if !ok {
+		t.Error("Se esperaba una eliminación exitosa del turno")
+	}
+}
+
+// 9. Obtención del estado de los Seguimientos (Firma corregida a GetSeguimientosTurno)
+func TestGetSeguimientos_Exitoso(t *testing.T) {
+	mockRepo := &MockTurnosRepositoryCompleto{SimulateError: false}
+	service := NewTurnoService(mockRepo)
+
+	lista, err := service.GetSeguimientosTurno()
+	if err != nil {
+		t.Errorf("No se esperaba un error al obtener seguimientos: %v", err)
+	}
+	if len(lista) == 0 {
+		t.Error("La lista de seguimientos no debería estar vacía")
+	}
+}
+
+// 10. Consulta de las Alertas o Notificaciones registradas (Firma corregida a error estándar)
+func TestGetNotificaciones_Exitoso(t *testing.T) {
+	mockRepo := &MockTurnosRepositoryCompleto{SimulateError: false}
+	service := NewTurnoService(mockRepo)
+
+	lista, err := service.GetNotificaciones()
+	if err != nil {
+		t.Errorf("No se esperaba un error al obtener notificaciones: %v", err)
+	}
+	if len(lista) == 0 {
+		t.Error("La lista de notificaciones no debería estar vacía")
 	}
 }
