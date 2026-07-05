@@ -18,15 +18,19 @@ func (r *SqliteTurnosRepository) Create(turno *models.Turno) error {
 	return r.db.Create(turno).Error
 }
 
+// MODIFICAR: Ahora carga de forma relacional al Cliente y al Servicio asociados
 func (r *SqliteTurnosRepository) GetAll() ([]models.Turno, error) {
 	var turnos []models.Turno
-	err := r.db.Find(&turnos).Error
+	// Preload lee de forma automática los datos correspondientes usando las llaves foráneas
+	err := r.db.Preload("Cliente").Preload("Servicio").Find(&turnos).Error
 	return turnos, err
 }
 
+// MODIFICAR: Ahora carga de forma relacional al Cliente y al Servicio asociados
 func (r *SqliteTurnosRepository) GetByID(id uint) (models.Turno, error) {
 	var turno models.Turno
-	err := r.db.First(&turno, id).Error
+	// Preload evita que los objetos anidados retornen null en las consultas individuales
+	err := r.db.Preload("Cliente").Preload("Servicio").First(&turno, id).Error
 	return turno, err
 }
 
