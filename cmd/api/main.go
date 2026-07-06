@@ -15,9 +15,9 @@ import (
 )
 
 func main() {
-	// 1. Inicializar Base de Datos en SQLite (Con tus modelos unificados en orden)
-	database := db.InitDB("barberia.db")
-	log.Println("¡Persistencia SQLite con GORM inicializada con éxito!")
+	// 1. Inicializar Base de Datos en PostgreSQL (Con tus modelos unificados en orden)
+	database := db.InitPostgres()
+	log.Println("Persistencia PostgreSQL con GORM inicializada con éxito")
 
 	// 2. Instanciar Repositorios
 	authRepo := repository.NewAuthRepository(database)
