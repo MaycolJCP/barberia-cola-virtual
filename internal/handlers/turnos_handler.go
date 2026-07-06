@@ -32,6 +32,7 @@ func (h *TurnosHandler) CreateTurno(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(turnoCreado)
 }
@@ -42,6 +43,7 @@ func (h *TurnosHandler) GetTurnos(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error al obtener turnos", http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(turnos)
 }
 
@@ -58,6 +60,7 @@ func (h *TurnosHandler) GetTurnoByID(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Turno no encontrado", http.StatusNotFound)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(turno)
 }
 
@@ -73,6 +76,7 @@ func (h *TurnosHandler) UpdateTurno(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error al actualizar el turno", http.StatusBadRequest)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(turnoActualizado)
 }
 
@@ -97,6 +101,7 @@ func (h *TurnosHandler) GetSeguimientosTurno(w http.ResponseWriter, r *http.Requ
 		http.Error(w, "Error al obtener seguimientos", http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(segs)
 }
 
@@ -106,5 +111,6 @@ func (h *TurnosHandler) GetNotificaciones(w http.ResponseWriter, r *http.Request
 		http.Error(w, "Error al obtener notificaciones", http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(notifs)
 }

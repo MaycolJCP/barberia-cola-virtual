@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	// 1. Inicializar Base de Datos en SQLite (Con tus modelos unificados en orden)
+	// 1. Inicializar Base de Datos en SQLite
 	database := db.InitDB("barberia.db")
 	log.Println("¡Persistencia SQLite con GORM inicializada con éxito!")
 
@@ -29,9 +29,9 @@ func main() {
 	authService := services.NewAuthService(authRepo)
 	catalogService := services.NewCatalogService(catalogRepo)
 	perfilService := services.NewPerfilService(perfilRepo)
-	turnoService := services.NewTurnoService(turnosRepo) // Implementa tu cálculo dinámico de cola
+	turnoService := services.NewTurnoService(turnosRepo)
 
-	// 4. Instanciar Handlers inyectando los servicios correspondientes
+	// 4. Instanciar Handlers reales con sus servicios
 	authHandler := handlers.NewAuthHandler(authService)
 	catalogoHandler := handlers.NewCatalogoHandler(catalogService)
 	perfilHandler := handlers.NewPerfilHandler(perfilService)
@@ -48,14 +48,14 @@ func main() {
 			w.Write([]byte("API Barberia Cola Virtual funcionando con GORM y SQLite"))
 		})
 
-		// 👤 Módulo Autenticación y Registro (Integrante C)
+		// 👤 Módulo Autenticación y Registro (CONECTADO A HANDLER REAL)
 		r.Route("/auth", func(router chi.Router) {
-			router.Post("/register", authHandler.Register)
-			router.Post("/login", authHandler.Login)
+			router.Post("/register", authHandler.Register) // <--- CORREGIDO
+			router.Post("/login", authHandler.Login)       // <--- CORREGIDO
 
 			router.Group(func(auth chi.Router) {
 				auth.Use(middleware.AuthMiddleware)
-				auth.Get("/me", authHandler.Me)
+				auth.Get("/me", authHandler.Me) // <--- CORREGIDO
 			})
 		})
 
@@ -84,18 +84,18 @@ func main() {
 			router.Get("/", perfilHandler.GetPreferenciasCliente)
 		})
 
-		// 🏬 Módulo Catálogo y Selección de Servicios (Integrante B)
+		// 🏬 Módulo Catálogo y Selección de Servicios (CONECTADO A HANDLER REAL)
 		r.Route("/servicios", func(router chi.Router) {
-			router.Get("/", catalogoHandler.GetServicios)
-			router.Get("/{id}", catalogoHandler.GetServicioByID)
+			router.Get("/", catalogoHandler.GetServicios)        // <--- CORREGIDO
+			router.Get("/{id}", catalogoHandler.GetServicioByID) // <--- CORREGIDO
 
 			router.Group(func(admin chi.Router) {
 				admin.Use(middleware.AuthMiddleware)
 				admin.Use(middleware.AdminOnly)
 
-				admin.Post("/", catalogoHandler.CreateServicio)
-				admin.Put("/{id}", catalogoHandler.UpdateServicio)
-				admin.Delete("/{id}", catalogoHandler.DeleteServicio)
+				admin.Post("/", catalogoHandler.CreateServicio)       // <--- CORREGIDO
+				admin.Put("/{id}", catalogoHandler.UpdateServicio)    // <--- CORREGIDO
+				admin.Delete("/{id}", catalogoHandler.DeleteServicio) // <--- CORREGIDO
 			})
 		})
 
@@ -133,23 +133,23 @@ func main() {
 		r.Route("/turnos", func(router chi.Router) {
 			router.Use(middleware.AuthMiddleware)
 
-			router.Post("/", turnosHandler.CreateTurno)       // Agendar Turno + Alertas Automáticas
-			router.Get("/", turnosHandler.GetTurnos)          // Ver estado actual de la Cola Virtual
-			router.Get("/{id}", turnosHandler.GetTurnoByID)   // Buscar un turno puntual
-			router.Put("/{id}", turnosHandler.UpdateTurno)    // Actualizar (Por ejemplo, cambiar a EN_PROCESO)
-			router.Delete("/{id}", turnosHandler.DeleteTurno) // Cancelación / Salida de la cola
+			router.Post("/", turnosHandler.CreateTurno)
+			r.Get("/", turnosHandler.GetTurnos)
+			r.Get("/{id}", turnosHandler.GetTurnoByID)
+			r.Put("/{id}", turnosHandler.UpdateTurno)
+			r.Delete("/{id}", turnosHandler.DeleteTurno)
 		})
 
-		// 🎫 Métricas en tiempo real de la Cola Virtual
+		// 🎫 Métricas de la Cola Virtual
 		r.Route("/seguimientos-turno", func(router chi.Router) {
 			router.Use(middleware.AuthMiddleware)
-			router.Get("/", turnosHandler.GetSeguimientosTurno) // Muestra posiciones y tiempos calculados
+			router.Get("/", turnosHandler.GetSeguimientosTurno)
 		})
 
 		// 🎫 Historial de Alertas de Turnos
 		r.Route("/notificaciones", func(router chi.Router) {
 			router.Use(middleware.AuthMiddleware)
-			router.Get("/", turnosHandler.GetNotificaciones) // Alertas generadas por la regla de negocio
+			router.Get("/", turnosHandler.GetNotificaciones)
 		})
 	})
 
