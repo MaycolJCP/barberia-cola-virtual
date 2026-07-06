@@ -7,7 +7,7 @@ type Usuario struct {
 	gorm.Model
 
 	Username string `json:"username" gorm:"type:varchar(50);not null;uniqueIndex"`
-	Password string `json:"-" gorm:"type:varchar(255);not null"`
+	Password string `json:"password" gorm:"type:varchar(255);not null"` // <-- CORREGIDO: quitado el "-" para permitir el Decode
 	Nombre   string `json:"nombre" gorm:"type:varchar(100);not null"`
 	Correo   string `json:"email" gorm:"type:varchar(100);not null;uniqueIndex"`
 	Rol      string `json:"role" gorm:"type:varchar(20);default:'CLIENTE';not null"`

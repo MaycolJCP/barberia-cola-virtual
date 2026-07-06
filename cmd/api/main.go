@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"barberia-cola-virtual/internal/db"
 	"barberia-cola-virtual/internal/handlers"
@@ -15,9 +16,14 @@ import (
 )
 
 func main() {
-	// 1. Inicializar Base de Datos en SQLite
+	// 1. Inicializar Base de Datos de manera dinámica (Postgres en Docker / SQLite en Local)
 	database := db.InitDB("barberia.db")
-	log.Println("¡Persistencia SQLite con GORM inicializada con éxito!")
+
+	driverEnv := "SQLite"
+	if os.Getenv("DB_DRIVER") == "postgres" {
+		driverEnv = "PostgreSQL"
+	}
+	log.Printf("¡Persistencia %s con GORM inicializada con éxito!", driverEnv)
 
 	// 2. Instanciar Repositorios
 	authRepo := repository.NewAuthRepository(database)
@@ -45,17 +51,18 @@ func main() {
 	r.Route("/api/v1", func(r chi.Router) {
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("API Barberia Cola Virtual funcionando con GORM y SQLite"))
+			msg := "API Barberia Cola Virtual funcionando con GORM y " + driverEnv
+			w.Write([]byte(msg))
 		})
 
-		// 👤 Módulo Autenticación y Registro (CONECTADO A HANDLER REAL)
+		// 👤 Módulo Autenticación y Registro
 		r.Route("/auth", func(router chi.Router) {
-			router.Post("/register", authHandler.Register) // <--- CORREGIDO
-			router.Post("/login", authHandler.Login)       // <--- CORREGIDO
+			router.Post("/register", authHandler.Register)
+			router.Post("/login", authHandler.Login)
 
 			router.Group(func(auth chi.Router) {
 				auth.Use(middleware.AuthMiddleware)
-				auth.Get("/me", authHandler.Me) // <--- CORREGIDO
+				auth.Get("/me", authHandler.Me)
 			})
 		})
 
@@ -84,18 +91,18 @@ func main() {
 			router.Get("/", perfilHandler.GetPreferenciasCliente)
 		})
 
-		// 🏬 Módulo Catálogo y Selección de Servicios (CONECTADO A HANDLER REAL)
+		// 🏬 Módulo Catálogo y Selección de Servicios
 		r.Route("/servicios", func(router chi.Router) {
-			router.Get("/", catalogoHandler.GetServicios)        // <--- CORREGIDO
-			router.Get("/{id}", catalogoHandler.GetServicioByID) // <--- CORREGIDO
+			router.Get("/", catalogoHandler.GetServicios)
+			router.Get("/{id}", catalogoHandler.GetServicioByID)
 
 			router.Group(func(admin chi.Router) {
 				admin.Use(middleware.AuthMiddleware)
 				admin.Use(middleware.AdminOnly)
 
-				admin.Post("/", catalogoHandler.CreateServicio)       // <--- CORREGIDO
-				admin.Put("/{id}", catalogoHandler.UpdateServicio)    // <--- CORREGIDO
-				admin.Delete("/{id}", catalogoHandler.DeleteServicio) // <--- CORREGIDO
+				admin.Post("/", catalogoHandler.CreateServicio)
+				admin.Put("/{id}", catalogoHandler.UpdateServicio)
+				admin.Delete("/{id}", catalogoHandler.DeleteServicio)
 			})
 		})
 
@@ -134,10 +141,10 @@ func main() {
 			router.Use(middleware.AuthMiddleware)
 
 			router.Post("/", turnosHandler.CreateTurno)
-			r.Get("/", turnosHandler.GetTurnos)
-			r.Get("/{id}", turnosHandler.GetTurnoByID)
-			r.Put("/{id}", turnosHandler.UpdateTurno)
-			r.Delete("/{id}", turnosHandler.DeleteTurno)
+			router.Get("/", turnosHandler.GetTurnos)
+			router.Get("/{id}", turnosHandler.GetTurnoByID)
+			router.Put("/{id}", turnosHandler.UpdateTurno)
+			router.Delete("/{id}", turnosHandler.DeleteTurno)
 		})
 
 		// 🎫 Métricas de la Cola Virtual
@@ -153,7 +160,7 @@ func main() {
 		})
 	})
 
-	log.Println("🚀 Servidor unificado escuchando en http://localhost:8080")
+	log.Println("🚀 Servidor unificado escuchando en el puerto :8080")
 
 	err := http.ListenAndServe(":8080", r)
 	if err != nil {
