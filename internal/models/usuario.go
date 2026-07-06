@@ -2,12 +2,18 @@ package models
 
 import "gorm.io/gorm"
 
+// Usuario representa la entidad del módulo de Perfil e IAM (Integrante C)
 type Usuario struct {
 	gorm.Model
-	Nombre   string `json:"nombre" gorm:"not null"`
-	Correo   string `json:"correo" gorm:"unique;not null"`
-	Password string `json:"password" gorm:"not null"`
-	Rol      string `json:"rol" gorm:"default:'CLIENTE'"`
+
+	Username string `json:"username" gorm:"type:varchar(50);not null;uniqueIndex"`
+	Password string `json:"-" gorm:"type:varchar(255);not null"`
+	Nombre   string `json:"nombre" gorm:"type:varchar(100);not null"`
+	Correo   string `json:"email" gorm:"type:varchar(100);not null;uniqueIndex"`
+	Rol      string `json:"role" gorm:"type:varchar(20);default:'CLIENTE';not null"`
+
+	// Relación Has-Many: Un cliente puede solicitar muchos turnos en la barbería
+	Turnos []Turno `json:"turnos,omitempty" gorm:"foreignKey:ClienteID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 }
 
 type UsuarioResponse struct {

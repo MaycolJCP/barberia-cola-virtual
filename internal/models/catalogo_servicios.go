@@ -14,7 +14,10 @@ type Servicio struct {
 	Nombre      string  `json:"nombre" gorm:"not null"`
 	Descripcion string  `json:"descripcion"`
 	Precio      float64 `json:"precio" gorm:"not null"`
-	Duracion    int     `json:"duracion" gorm:"not null"` // En minutos
+	Duracion    int     `json:"duracion" gorm:"not null"` // En minutos (Se usa en tu regla de negocio)
+
+	// RELACIÓN AVANZADA (Has-Many): Un servicio está vinculado a muchos turnos de la cola
+	Turnos []Turno `json:"turnos,omitempty" gorm:"foreignKey:ServicioID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 }
 
 type Promocion struct {
