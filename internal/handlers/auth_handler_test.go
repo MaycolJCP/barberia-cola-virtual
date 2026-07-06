@@ -47,6 +47,7 @@ func TestRegisterHandler_UsuarioValido(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	router.ServeHTTP(rec, req)
+	t.Log("RESPUESTA:", rec.Body.String())
 
 	if rec.Code != http.StatusCreated && rec.Code != http.StatusOK {
 		t.Errorf("se esperaba un status de éxito (200 o 201), pero llegó %d", rec.Code)
