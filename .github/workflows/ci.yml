@@ -1,0 +1,70 @@
+# ======================================================
+# PIPELINE DE INTEGRACIÓN CONTINUA (CI)
+#
+# Cada vez que alguien haga:
+#      git push
+# o abra un Pull Request,
+# GitHub ejecutará automáticamente este archivo.
+#
+# El objetivo es verificar que el proyecto siga funcionando.
+# ======================================================
+
+name: CI
+
+# ------------------------------------------------------
+# Eventos que disparan el pipeline
+# ------------------------------------------------------
+on:
+  push:
+  pull_request:
+
+jobs:
+
+  # ====================================================
+  # JOB PRINCIPAL
+  # ====================================================
+  verificar:
+
+    # GitHub crea una máquina virtual Ubuntu completamente limpia.
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # --------------------------------------------
+      # Descarga el repositorio en la máquina virtual
+      # --------------------------------------------
+      - name: Clonar el repositorio
+        uses: actions/checkout@v4
+
+      # --------------------------------------------
+      # Instala Go utilizando la versión indicada
+      # en el archivo go.mod
+      # --------------------------------------------
+      - name: Instalar Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      # --------------------------------------------
+      # Compila todo el proyecto.
+      # Si existe un error de compilación,
+      # aquí termina el pipeline.
+      # --------------------------------------------
+      - name: Compilar proyecto
+        run: go build ./...
+
+      # --------------------------------------------
+      # Analiza malas prácticas o errores comunes.
+      # No ejecuta el programa.
+      # Solo revisa el código.
+      # --------------------------------------------
+      - name: Analizar código
+        run: go vet ./...
+
+      # --------------------------------------------
+      # Ejecuta todos los tests del proyecto.
+      # Si algún test falla,
+      # el pipeline aparecerá en rojo.
+      # --------------------------------------------
+      - name: Ejecutar pruebas
+        run: go test -v ./...

@@ -1,0 +1,9 @@
+.git
+.gitignore
+*.exe
+*.test
+tmp
+.vscode
+nude_modules
+Dockerfile
+docker-compose.yml

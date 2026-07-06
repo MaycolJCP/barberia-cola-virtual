@@ -1,0 +1,65 @@
+# =====================================================
+# DOCKER COMPOSE
+# Proyecto: Barbería Cola Virtual
+#
+# Levanta dos servicios:
+# 1. db  -> PostgreSQL
+# 2. api -> API desarrollada en Go
+# =====================================================
+
+services:
+  # ============================
+  # SERVICIO DE BASE DE DATOS
+  # ============================
+  db:
+    image: postgres:17
+    container_name: barberia_db
+    restart: always
+
+    # Variables iniciales de PostgreSQL
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: post123
+      POSTGRES_DB: barberia_db
+
+    # Puerto externo 5433 para evitar choque con PostgreSQL local
+    # Dentro del contenedor PostgreSQL sigue usando 5432
+    ports:
+      - "5433:5432"
+
+    # Volumen para que los datos sobrevivan al reiniciar contenedores
+    volumes:
+      - barberia_postgres_data:/var/lib/postgresql/data
+
+    # Verifica que PostgreSQL esté listo antes de iniciar la API
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d barberia_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ============================
+  # SERVICIO DE LA API
+  # ============================
+  api:
+    build: .
+    container_name: barberia_api
+    restart: always
+
+    # La API se expone en localhost:8080
+    ports:
+      - "8080:8080"
+
+    # Variables que usará Go para conectarse a PostgreSQL
+    environment:
+      DB_DRIVER: postgres
+      DATABASE_DSN: host=db user=postgres password=post123 dbname=barberia_db port=5432 sslmode=disable
+
+    # La API espera a que la base esté saludable
+    depends_on:
+      db:
+        condition: service_healthy
+
+# Volumen nombrado para persistencia de PostgreSQL
+volumes:
+  barberia_postgres_data:
