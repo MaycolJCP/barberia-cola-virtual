@@ -19,8 +19,8 @@ func NewAuthHandler(s *services.AuthService) *AuthHandler {
 	return &AuthHandler{authService: s}
 }
 
-func (h *AuthHandler) Registrar(w http.ResponseWriter, r *http.Request) {
-	var usuario models.Usuarios
+func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
+	var usuario models.Usuario
 
 	err := json.NewDecoder(r.Body).Decode(&usuario)
 	if err != nil {
