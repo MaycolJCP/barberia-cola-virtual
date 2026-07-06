@@ -77,7 +77,7 @@ func TestRegisterHandler_UsuarioValido(t *testing.T) {
 		rec.Code = http.StatusCreated
 	}
 
-	if rec.Code != http.StatusTeapot {
+	if rec.Code != http.StatusCreated && rec.Code != http.StatusOK {
 		t.Errorf("se esperaba un status de éxito (200 o 201), pero llegó %d", rec.Code)
 	}
 }
