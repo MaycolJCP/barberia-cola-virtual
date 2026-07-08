@@ -64,13 +64,26 @@ func (h *TurnosHandler) GetTurnoByID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(turno)
 }
 
+// 🟢 CORREGIDO: Ahora extrae el ID de la URL y evita duplicaciones en la base de datos
 func (h *TurnosHandler) UpdateTurno(w http.ResponseWriter, r *http.Request) {
+	// 1. Obtener el ID desde la URL especificada en Chi (/turnos/{id})
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		http.Error(w, "ID de turno inválido en la URL", http.StatusBadRequest)
+		return
+	}
+
 	var turno models.Turno
 	if err := json.NewDecoder(r.Body).Decode(&turno); err != nil {
 		http.Error(w, "JSON inválido", http.StatusBadRequest)
 		return
 	}
 
+	// 2. ASIGNACIÓN CRÍTICA: Forzamos que el objeto lleve el ID de la URL
+	turno.ID = uint(id)
+
+	// 3. Enviar al servicio para aplicar la actualización real en GORM
 	turnoActualizado, ok := h.turnoService.UpdateTurno(turno)
 	if !ok {
 		http.Error(w, "Error al actualizar el turno", http.StatusBadRequest)
