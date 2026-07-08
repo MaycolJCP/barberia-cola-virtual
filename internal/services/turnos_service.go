@@ -7,10 +7,11 @@ import (
 )
 
 type TurnoService struct {
-	repo repository.TurnosRepository
+	// 🟢 Cambiado a ITurnosRepository para que coincida con la nueva interfaz local
+	repo repository.ITurnosRepository
 }
 
-func NewTurnoService(repo repository.TurnosRepository) *TurnoService {
+func NewTurnoService(repo repository.ITurnosRepository) *TurnoService {
 	return &TurnoService{repo: repo}
 }
 
@@ -40,10 +41,9 @@ func (s *TurnoService) CreateTurno(turno models.Turno) (models.Turno, bool) {
 		if t.ID < turno.ID && (t.Estado == "ESPERANDO" || t.Estado == "EN_PROCESO") {
 			personasDelante++
 			if t.Servicio != nil {
-				// Usa el campo 'Duracion' tal como lo definió tu compañero en su catálogo
 				tiempoEsperaAcumulado += t.Servicio.Duracion
 			} else {
-				tiempoEsperaAcumulado += 20 // Tiempo estándar por defecto por si falta precargar la relación
+				tiempoEsperaAcumulado += 20 // Tiempo estándar por defecto
 			}
 		}
 	}
@@ -86,26 +86,28 @@ func (s *TurnoService) DeleteTurno(id uint) bool {
 	return s.repo.Delete(id) == nil
 }
 
+// 🟢 ALGORITMO ACUMULATIVO OPTIMIZADO: Evita el error 500 validando punteros nulos de GORM
 func (s *TurnoService) GetSeguimientosTurno() ([]models.SeguimientoTurno, error) {
-	// 1. Traer los seguimientos desde el repositorio (que ya incluye el Preload del Turno y Servicio)
 	segs, err := s.repo.GetSeguimientos()
 	if err != nil {
 		return nil, err
 	}
 
-	// 🟢 VARIABLE ACUMULADORA: Empezamos en 0 minutos para el primero de la fila
 	tiempoAcumulado := 0
 
-	// 2. Recorrer la cola en orden de posición
 	for i := range segs {
 		if i == 0 {
-			// El primero de la cola no tiene a nadie delante -> Espera 0 minutos
 			segs[i].PersonasDelante = 0
 			segs[i].TiempoEstimadoMinutos = 0
 		} else {
-			// A partir del segundo, sumamos la duración del servicio de la persona justo ANTERIOR
-			// Revisa si tu modelo usa "Duracion" o "Tiempo" en el struct del Servicio
-			duracionServicioAnterior := segs[i-1].Turno.Servicio.Duracion
+			// 🛡️ CONTROL DE SEGURIDAD ANTE ERROR 500:
+			// Si GORM no precargó el turno o el servicio por un fallo de relaciones,
+			// usamos un valor por defecto (20 min) en vez de dejar que el sistema se caiga.
+			duracionServicioAnterior := 20
+
+			if segs[i-1].Turno != nil && segs[i-1].Turno.Servicio != nil {
+				duracionServicioAnterior = segs[i-1].Turno.Servicio.Duracion
+			}
 
 			tiempoAcumulado += duracionServicioAnterior
 
