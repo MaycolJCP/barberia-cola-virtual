@@ -4,6 +4,8 @@ import (
 	"barberia-cola-virtual/internal/models"
 	"errors"
 	"testing"
+
+	"gorm.io/gorm" // Necesario para instanciar gorm.Model
 )
 
 // MockTurnosRepositoryCompleto simula el repositorio con todas las funciones para TurnoService
@@ -19,18 +21,41 @@ func (m *MockTurnosRepositoryCompleto) Create(t *models.Turno) error {
 	return nil
 }
 
+// SOLUCIONADO: Inicialización correcta de structs embebidos de GORM usando gorm.Model
 func (m *MockTurnosRepositoryCompleto) GetAll() ([]models.Turno, error) {
 	if m.SimulateError {
 		return nil, errors.New("db error")
 	}
-	return []models.Turno{{ClienteID: 1, ServicioID: 2, Estado: "ESPERANDO"}}, nil
+	return []models.Turno{
+		{
+			Model:      gorm.Model{ID: 1}, // Solución al error ID heredado
+			ClienteID:  1,
+			ServicioID: 2,
+			Estado:     "ESPERANDO",
+			Servicio: &models.Servicio{
+				Model:    gorm.Model{ID: 2}, // Solución al error ID heredado
+				Nombre:   "Corte Clasico",
+				Precio:   10.00,
+				Duracion: 20,
+			},
+		},
+	}, nil
 }
 
 func (m *MockTurnosRepositoryCompleto) GetByID(id uint) (models.Turno, error) {
 	if m.SimulateError || id == 999 {
 		return models.Turno{}, errors.New("not found")
 	}
-	return models.Turno{ClienteID: 1, ServicioID: 2, Estado: "ESPERANDO"}, nil
+	return models.Turno{
+		ClienteID:  1,
+		ServicioID: 2,
+		Estado:     "ESPERANDO",
+		Servicio: &models.Servicio{
+			Model:    gorm.Model{ID: 2}, // Solución al error ID heredado
+			Nombre:   "Corte Clasico",
+			Duracion: 20,
+		},
+	}, nil
 }
 
 func (m *MockTurnosRepositoryCompleto) Update(t *models.Turno) error {
@@ -85,6 +110,7 @@ func TestCreateTurno_Valido(t *testing.T) {
 	service := NewTurnoService(mockRepo)
 
 	turnoNuevo := models.Turno{
+		Model:      gorm.Model{ID: 2}, // Solución al error ID heredado
 		ClienteID:  1,
 		ServicioID: 2,
 	}
@@ -164,13 +190,13 @@ func TestGetTurnoByID_NoEncontrado(t *testing.T) {
 	mockRepo := &MockTurnosRepositoryCompleto{SimulateError: false}
 	service := NewTurnoService(mockRepo)
 
-	_, ok := service.GetTurnoByID(999) // ID gatillo configurado en tu mock
+	_, ok := service.GetTurnoByID(999)
 	if ok {
 		t.Error("Se esperaba un fallo (false) al buscar un turno inexistente")
 	}
 }
 
-// 7. Listar todos los Turnos de la Cola Virtual (Firma corregida a error estándar)
+// 7. Listar todos los Turnos de la Cola Virtual
 func TestGetTurnos_Exitoso(t *testing.T) {
 	mockRepo := &MockTurnosRepositoryCompleto{SimulateError: false}
 	service := NewTurnoService(mockRepo)
@@ -195,7 +221,7 @@ func TestDeleteTurno_Exitoso(t *testing.T) {
 	}
 }
 
-// 9. Obtención del estado de los Seguimientos (Firma corregida a GetSeguimientosTurno)
+// 9. Obtención del estado de los Seguimientos
 func TestGetSeguimientos_Exitoso(t *testing.T) {
 	mockRepo := &MockTurnosRepositoryCompleto{SimulateError: false}
 	service := NewTurnoService(mockRepo)
@@ -209,7 +235,7 @@ func TestGetSeguimientos_Exitoso(t *testing.T) {
 	}
 }
 
-// 10. Consulta de las Alertas o Notificaciones registradas (Firma corregida a error estándar)
+// 10. Consulta de las Alertas o Notificaciones registradas
 func TestGetNotificaciones_Exitoso(t *testing.T) {
 	mockRepo := &MockTurnosRepositoryCompleto{SimulateError: false}
 	service := NewTurnoService(mockRepo)
