@@ -22,21 +22,24 @@ func TestTurnoRepository_Persistencia(t *testing.T) {
 		t.Fatalf("Error al migrar el modelo Turno: %v", err)
 	}
 
-	// 3. Crear registro
+	// 3. Inicializar el repositorio real de producción
+	repo := NewTurnosRepository(db)
+
+	// 4. Crear registro usando tu método Create (Quitamos el .Error del final)
 	turnoNuevo := models.Turno{
 		ClienteID:  1,
 		ServicioID: 2,
 		Estado:     "ESPERANDO",
 	}
 
-	if err := db.Create(&turnoNuevo).Error; err != nil {
-		t.Fatalf("Error al guardar el turno: %v", err)
+	if err := repo.Create(&turnoNuevo); err != nil {
+		t.Fatalf("Error al guardar el turno usando el repositorio: %v", err)
 	}
 
-	// 4. Buscar / Listar lo refleja
-	var turnoResultado models.Turno
-	if err := db.First(&turnoResultado, turnoNuevo.ID).Error; err != nil {
-		t.Fatalf("Error al buscar el turno guardado: %v", err)
+	// 5. Buscar el registro usando tu método GetByID (que incluye Preload)
+	turnoResultado, err := repo.GetByID(turnoNuevo.ID)
+	if err != nil {
+		t.Fatalf("Error al buscar el turno guardado usando el repositorio: %v", err)
 	}
 
 	if turnoResultado.ClienteID != turnoNuevo.ClienteID {
