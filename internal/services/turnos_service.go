@@ -87,7 +87,34 @@ func (s *TurnoService) DeleteTurno(id uint) bool {
 }
 
 func (s *TurnoService) GetSeguimientosTurno() ([]models.SeguimientoTurno, error) {
-	return s.repo.GetSeguimientos()
+	// 1. Traer los seguimientos desde el repositorio (que ya incluye el Preload del Turno y Servicio)
+	segs, err := s.repo.GetSeguimientos()
+	if err != nil {
+		return nil, err
+	}
+
+	// 🟢 VARIABLE ACUMULADORA: Empezamos en 0 minutos para el primero de la fila
+	tiempoAcumulado := 0
+
+	// 2. Recorrer la cola en orden de posición
+	for i := range segs {
+		if i == 0 {
+			// El primero de la cola no tiene a nadie delante -> Espera 0 minutos
+			segs[i].PersonasDelante = 0
+			segs[i].TiempoEstimadoMinutos = 0
+		} else {
+			// A partir del segundo, sumamos la duración del servicio de la persona justo ANTERIOR
+			// Revisa si tu modelo usa "Duracion" o "Tiempo" en el struct del Servicio
+			duracionServicioAnterior := segs[i-1].Turno.Servicio.Duracion
+
+			tiempoAcumulado += duracionServicioAnterior
+
+			segs[i].PersonasDelante = i
+			segs[i].TiempoEstimadoMinutos = tiempoAcumulado
+		}
+	}
+
+	return segs, nil
 }
 
 func (s *TurnoService) GetNotificaciones() ([]models.Notificacion, error) {
