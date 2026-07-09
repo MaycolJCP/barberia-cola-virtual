@@ -6,12 +6,10 @@ import (
 	"testing"
 )
 
-// MockCatalogRepository implementa de forma simulada todos los métodos requeridos por repository.CatalogRepository
 type MockCatalogRepository struct {
 	SimulateError bool
 }
 
-// Métodos de Servicios
 func (m *MockCatalogRepository) CreateServicio(s *models.Servicio) error {
 	if m.SimulateError {
 		return errors.New("db error")
@@ -19,113 +17,384 @@ func (m *MockCatalogRepository) CreateServicio(s *models.Servicio) error {
 	s.ID = 1
 	return nil
 }
-func (m *MockCatalogRepository) GetServicios() ([]models.Servicio, error) { return nil, nil }
-func (m *MockCatalogRepository) GetServicioByID(id uint) (models.Servicio, error) {
+
+func (m *MockCatalogRepository) GetServicios() ([]models.Servicio, error) {
 	if m.SimulateError {
+		return nil, errors.New("db error")
+	}
+	return []models.Servicio{{Nombre: "Corte Clasico", Precio: 5, Duracion: 30}}, nil
+}
+
+func (m *MockCatalogRepository) GetServicioByID(id uint) (models.Servicio, error) {
+	if m.SimulateError || id == 999 {
 		return models.Servicio{}, errors.New("not found")
 	}
-	return models.Servicio{Nombre: "Corte Clasico"}, nil
+	return models.Servicio{Nombre: "Corte Clasico", Precio: 5, Duracion: 30}, nil
 }
-func (m *MockCatalogRepository) UpdateServicio(s *models.Servicio) error { return nil }
-func (m *MockCatalogRepository) DeleteServicio(id uint) error            { return nil }
 
-// Métodos de Categorías
-func (m *MockCatalogRepository) CreateCategoria(c *models.CategoriaServicio) error  { return nil }
-func (m *MockCatalogRepository) GetCategorias() ([]models.CategoriaServicio, error) { return nil, nil }
+func (m *MockCatalogRepository) UpdateServicio(s *models.Servicio) error {
+	if m.SimulateError {
+		return errors.New("db error")
+	}
+	return nil
+}
+
+func (m *MockCatalogRepository) DeleteServicio(id uint) error {
+	if m.SimulateError {
+		return errors.New("db error")
+	}
+	return nil
+}
+
+func (m *MockCatalogRepository) CreateCategoria(c *models.CategoriaServicio) error {
+	if m.SimulateError {
+		return errors.New("db error")
+	}
+	c.ID = 1
+	return nil
+}
+
+func (m *MockCatalogRepository) GetCategorias() ([]models.CategoriaServicio, error) {
+	if m.SimulateError {
+		return nil, errors.New("db error")
+	}
+	return []models.CategoriaServicio{{Nombre: "Cortes"}}, nil
+}
+
 func (m *MockCatalogRepository) GetCategoriaByID(id uint) (models.CategoriaServicio, error) {
-	return models.CategoriaServicio{}, nil
+	if m.SimulateError || id == 999 {
+		return models.CategoriaServicio{}, errors.New("not found")
+	}
+	return models.CategoriaServicio{Nombre: "Cortes"}, nil
 }
-func (m *MockCatalogRepository) UpdateCategoria(c *models.CategoriaServicio) error { return nil }
-func (m *MockCatalogRepository) DeleteCategoria(id uint) error                     { return nil }
 
-// Métodos de Promociones
-func (m *MockCatalogRepository) CreatePromocion(p *models.Promocion) error   { return nil }
-func (m *MockCatalogRepository) GetPromociones() ([]models.Promocion, error) { return nil, nil }
+func (m *MockCatalogRepository) UpdateCategoria(c *models.CategoriaServicio) error {
+	if m.SimulateError {
+		return errors.New("db error")
+	}
+	return nil
+}
+
+func (m *MockCatalogRepository) DeleteCategoria(id uint) error {
+	if m.SimulateError {
+		return errors.New("db error")
+	}
+	return nil
+}
+
+func (m *MockCatalogRepository) CreatePromocion(p *models.Promocion) error {
+	if m.SimulateError {
+		return errors.New("db error")
+	}
+	p.ID = 1
+	return nil
+}
+
+func (m *MockCatalogRepository) GetPromociones() ([]models.Promocion, error) {
+	if m.SimulateError {
+		return nil, errors.New("db error")
+	}
+	return []models.Promocion{{Nombre: "Promo Corte", Descuento: 10}}, nil
+}
+
 func (m *MockCatalogRepository) GetPromocionByID(id uint) (models.Promocion, error) {
-	return models.Promocion{}, nil
+	if m.SimulateError || id == 999 {
+		return models.Promocion{}, errors.New("not found")
+	}
+	return models.Promocion{Nombre: "Promo Corte", Descuento: 10}, nil
 }
-func (m *MockCatalogRepository) UpdatePromocion(p *models.Promocion) error { return nil }
-func (m *MockCatalogRepository) DeletePromocion(id uint) error             { return nil }
 
-// ============================================================================
-// SUITE DE 5 PRUEBAS REQUERIDAS PARA EL MÓDULO DE CATÁLOGO
-// ============================================================================
+func (m *MockCatalogRepository) UpdatePromocion(p *models.Promocion) error {
+	if m.SimulateError {
+		return errors.New("db error")
+	}
+	return nil
+}
 
-// 1. Test de Camino Feliz: Creación de servicio con datos válidos
+func (m *MockCatalogRepository) DeletePromocion(id uint) error {
+	if m.SimulateError {
+		return errors.New("db error")
+	}
+	return nil
+}
+
+// ================= SERVICIOS =================
+
 func TestCreateServicio_Valido(t *testing.T) {
-	mockRepo := &MockCatalogRepository{SimulateError: false}
-	service := NewCatalogService(mockRepo)
+	service := NewCatalogService(&MockCatalogRepository{})
 
-	nuevoServicio := models.Servicio{
-		Nombre:   "Corte Degradado + Barba",
-		Precio:   12.50,
+	servicio := models.Servicio{
+		Nombre:   "Corte Clasico",
+		Precio:   5,
 		Duracion: 30,
 	}
 
-	_, ok := service.CreateServicio(nuevoServicio)
+	_, ok := service.CreateServicio(servicio)
 	if !ok {
-		t.Error("Se esperaba que el servicio se creara correctamente con datos validos")
+		t.Error("se esperaba crear el servicio correctamente")
 	}
 }
 
-// 2. Test de Validación de Regla de Negocio: Campos obligatorios vacíos o inválidos
-func TestCreateServicio_Invalido_CamposVacios(t *testing.T) {
-	mockRepo := &MockCatalogRepository{SimulateError: false}
-	service := NewCatalogService(mockRepo)
+func TestCreateServicio_Invalido(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
 
-	// Nombre vacío, precio y duración inválidos (cero o negativos)
-	servicioInvalido := models.Servicio{
+	servicio := models.Servicio{
 		Nombre:   "",
 		Precio:   0,
-		Duracion: -5,
+		Duracion: 0,
 	}
 
-	_, ok := service.CreateServicio(servicioInvalido)
+	_, ok := service.CreateServicio(servicio)
 	if ok {
-		t.Error("Se esperaba que fallara la creacion debido a campos obligatorios invalidos")
+		t.Error("se esperaba error por datos invalidos")
 	}
 }
 
-// 3. Test de Error de Infraestructura: Simular fallo al guardar en la base de datos
-func TestCreateServicio_ErrorBaseDatos(t *testing.T) {
-	// Forzamos al repositorio simulado a retornar un error interno de base de datos
-	mockRepo := &MockCatalogRepository{SimulateError: true}
-	service := NewCatalogService(mockRepo)
+func TestCreateServicio_ErrorRepositorio(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{SimulateError: true})
 
-	nuevoServicio := models.Servicio{
-		Nombre:   "Tinte de Cabello",
-		Precio:   20.00,
-		Duracion: 45,
+	servicio := models.Servicio{
+		Nombre:   "Corte",
+		Precio:   5,
+		Duracion: 30,
 	}
 
-	_, ok := service.CreateServicio(nuevoServicio)
+	_, ok := service.CreateServicio(servicio)
 	if ok {
-		t.Error("Se esperaba que retornara false debido a un error de escritura en el repositorio")
+		t.Error("se esperaba error del repositorio")
 	}
 }
 
-// 4. Test de Búsqueda Exitosa: Obtener un servicio existente por su ID único
+func TestGetServicios_Exitoso(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	servicios, err := service.GetServicios()
+	if err != nil {
+		t.Errorf("no se esperaba error: %v", err)
+	}
+	if len(servicios) == 0 {
+		t.Error("se esperaba al menos un servicio")
+	}
+}
+
+func TestGetServicios_Error(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{SimulateError: true})
+
+	_, err := service.GetServicios()
+	if err == nil {
+		t.Error("se esperaba error al listar servicios")
+	}
+}
+
 func TestGetServicioByID_Exitoso(t *testing.T) {
-	mockRepo := &MockCatalogRepository{SimulateError: false}
-	service := NewCatalogService(mockRepo)
+	service := NewCatalogService(&MockCatalogRepository{})
 
 	servicio, ok := service.GetServicioByID(1)
 	if !ok {
-		t.Fatal("Se esperaba encontrar el servicio buscado")
+		t.Fatal("se esperaba encontrar el servicio")
 	}
-
 	if servicio.Nombre != "Corte Clasico" {
-		t.Errorf("Se esperaba el servicio 'Corte Clasico', se obtuvo: %s", servicio.Nombre)
+		t.Errorf("servicio incorrecto: %s", servicio.Nombre)
 	}
 }
 
-// 5. Test de Búsqueda Fallida: Intentar obtener un servicio que no existe en el almacenamiento
 func TestGetServicioByID_NoEncontrado(t *testing.T) {
-	mockRepo := &MockCatalogRepository{SimulateError: true}
-	service := NewCatalogService(mockRepo)
+	service := NewCatalogService(&MockCatalogRepository{})
 
 	_, ok := service.GetServicioByID(999)
 	if ok {
-		t.Error("Se esperaba que retornara false (no encontrado) al buscar un ID inexistente")
+		t.Error("se esperaba que no encuentre el servicio")
+	}
+}
+
+func TestUpdateServicio_Exitoso(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	servicio := models.Servicio{
+		Nombre:   "Corte Actualizado",
+		Precio:   6,
+		Duracion: 35,
+	}
+
+	_, ok := service.UpdateServicio(servicio)
+	if !ok {
+		t.Error("se esperaba actualizar el servicio")
+	}
+}
+
+func TestUpdateServicio_Error(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{SimulateError: true})
+
+	_, ok := service.UpdateServicio(models.Servicio{})
+	if ok {
+		t.Error("se esperaba error al actualizar")
+	}
+}
+
+func TestDeleteServicio_Exitoso(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	ok := service.DeleteServicio(1)
+	if !ok {
+		t.Error("se esperaba eliminar el servicio")
+	}
+}
+
+func TestDeleteServicio_Error(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{SimulateError: true})
+
+	ok := service.DeleteServicio(1)
+	if ok {
+		t.Error("se esperaba error al eliminar")
+	}
+}
+
+// ================= CATEGORÍAS =================
+
+func TestCreateCategoria_Valida(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	categoria := models.CategoriaServicio{
+		Nombre: "Cortes",
+	}
+
+	_, ok := service.CreateCategoriaServicio(categoria)
+	if !ok {
+		t.Error("se esperaba crear la categoria")
+	}
+}
+
+func TestCreateCategoria_Invalida(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	_, ok := service.CreateCategoriaServicio(models.CategoriaServicio{})
+	if ok {
+		t.Error("se esperaba error por categoria sin nombre")
+	}
+}
+
+func TestGetCategorias_Exitoso(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	categorias, err := service.GetCategoriasServicio()
+	if err != nil {
+		t.Errorf("no se esperaba error: %v", err)
+	}
+	if len(categorias) == 0 {
+		t.Error("se esperaba al menos una categoria")
+	}
+}
+
+func TestGetCategoriaByID_Exitoso(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	_, ok := service.GetCategoriaServicioByID(1)
+	if !ok {
+		t.Error("se esperaba encontrar la categoria")
+	}
+}
+
+func TestGetCategoriaByID_NoEncontrada(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	_, ok := service.GetCategoriaServicioByID(999)
+	if ok {
+		t.Error("se esperaba que no encuentre la categoria")
+	}
+}
+
+func TestUpdateCategoria_Exitoso(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	_, ok := service.UpdateCategoriaServicio(models.CategoriaServicio{Nombre: "Cortes Premium"})
+	if !ok {
+		t.Error("se esperaba actualizar la categoria")
+	}
+}
+
+func TestDeleteCategoria_Exitoso(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	ok := service.DeleteCategoriaServicio(1)
+	if !ok {
+		t.Error("se esperaba eliminar la categoria")
+	}
+}
+
+// ================= PROMOCIONES =================
+
+func TestCreatePromocion_Valida(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	promo := models.Promocion{
+		Nombre:    "Promo Corte",
+		Descuento: 10,
+	}
+
+	_, ok := service.CreatePromocion(promo)
+	if !ok {
+		t.Error("se esperaba crear la promocion")
+	}
+}
+
+func TestCreatePromocion_Invalida(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	promo := models.Promocion{
+		Nombre:    "",
+		Descuento: 0,
+	}
+
+	_, ok := service.CreatePromocion(promo)
+	if ok {
+		t.Error("se esperaba error por promocion invalida")
+	}
+}
+
+func TestGetPromociones_Exitoso(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	promos, err := service.GetPromociones()
+	if err != nil {
+		t.Errorf("no se esperaba error: %v", err)
+	}
+	if len(promos) == 0 {
+		t.Error("se esperaba al menos una promocion")
+	}
+}
+
+func TestGetPromocionByID_Exitoso(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	_, ok := service.GetPromocionByID(1)
+	if !ok {
+		t.Error("se esperaba encontrar la promocion")
+	}
+}
+
+func TestGetPromocionByID_NoEncontrada(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	_, ok := service.GetPromocionByID(999)
+	if ok {
+		t.Error("se esperaba que no encuentre la promocion")
+	}
+}
+
+func TestUpdatePromocion_Exitoso(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	_, ok := service.UpdatePromocion(models.Promocion{Nombre: "Promo Actualizada", Descuento: 15})
+	if !ok {
+		t.Error("se esperaba actualizar la promocion")
+	}
+}
+
+func TestDeletePromocion_Exitoso(t *testing.T) {
+	service := NewCatalogService(&MockCatalogRepository{})
+
+	ok := service.DeletePromocion(1)
+	if !ok {
+		t.Error("se esperaba eliminar la promocion")
 	}
 }
