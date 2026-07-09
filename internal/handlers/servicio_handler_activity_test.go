@@ -12,6 +12,9 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+//En el Handler pruebo la entrada HTTP. 
+// Uso httptest para simular peticiones como si vinieran desde Postman, sin necesidad de levantar el servidor real
+
 // ==================== TEST 2 DE HANDLER: PROTECCIÓN 401 UNAUTHORIZED ====================
 func TestCreateServicioHandler_SinToken_401(t *testing.T) {
 	// Reutiliza el Fake en memoria sin generar conflictos globales

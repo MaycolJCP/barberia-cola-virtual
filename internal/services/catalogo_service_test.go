@@ -6,6 +6,10 @@ import (
 	"testing"
 )
 
+//En esta capa pruebo las reglas de negocio del servicio. 
+// Por ejemplo, que no se pueda crear un servicio con nombre vacío, precio cero o duración inválida. 
+// También pruebo el caso exitoso y errores simulados del repositorio
+
 type MockCatalogRepository struct {
 	SimulateError bool
 }

@@ -16,20 +16,13 @@ import (
 // Esta estructura recibe las peticiones que llegan desde Postman, navegador
 // o cualquier cliente HTTP. No debe guardar datos directamente en la base,
 // sino comunicarse con el Service para mantener la arquitectura en capas:
-//
-// Handler -> Service -> Repository -> Base de datos
+
 type CatalogoHandler struct {
-	// catalogService contiene la lógica de negocio del módulo.
-	// El handler lo usa para crear, consultar, actualizar o eliminar
-	// servicios, categorías y promociones.
 	catalogService *services.CatalogService
 }
 
 // NewCatalogoHandler recibe el Service del catálogo y devuelve un Handler listo para usar.
-//
-// Esta función aplica inyección de dependencias: el Handler no crea el Service,
-// sino que lo recibe desde main.go. Esto hace que el código sea más ordenado,
-// fácil de mantener y más fácil de probar.
+// el Handler no crea el Service, sino que lo recibe desde main.go. 
 func NewCatalogoHandler(s *services.CatalogService) *CatalogoHandler {
 	return &CatalogoHandler{catalogService: s}
 }
@@ -43,8 +36,7 @@ func NewCatalogoHandler(s *services.CatalogService) *CatalogoHandler {
 // 2. Convierte ese JSON en un modelo Servicio.
 // 3. Envía el modelo al Service para aplicar reglas de negocio.
 // 4. Si todo sale bien, responde 201 Created con el servicio creado.
-//
-// Esta ruta normalmente debe estar protegida para usuarios ADMIN.
+
 func (h *CatalogoHandler) CreateServicio(w http.ResponseWriter, r *http.Request) {
 	var servicio models.Servicio
 

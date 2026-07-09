@@ -1,4 +1,4 @@
-# 💈 Barbería Cola Virtual
+#  Barbería Cola Virtual
 
 ## Descripción
 

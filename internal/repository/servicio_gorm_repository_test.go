@@ -8,6 +8,8 @@ import (
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 )
+//En Repository pruebo que la entidad Servicio realmente pueda guardarse y consultarse usando GORM. 
+// Para la prueba se puede usar una base temporal en memoria, así no se toca la base real de PostgreSQL.”
 
 func TestCatalogoRepository_CrearYBuscarReflejaEnBD(t *testing.T) {
 	// 1. PREPARAR: Configurar conexión limpia a SQLite en memoria usando GORM
