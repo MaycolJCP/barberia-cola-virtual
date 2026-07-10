@@ -6,14 +6,13 @@ import (
 	"testing"
 )
 
-//En esta capa pruebo las reglas de negocio del servicio. 
-// Por ejemplo, que no se pueda crear un servicio con nombre vacío, precio cero o duración inválida. 
-// También pruebo el caso exitoso y errores simulados del repositorio
+// MockCatalogRepository simula la capa Repository para probar el Service sin usar una base de datos real.
 
 type MockCatalogRepository struct {
 	SimulateError bool
 }
 
+// CreateServicio Simula la creación de un servicio. Si SimulateError está activo, devuelve un error; de lo contrario asigna un ID.
 func (m *MockCatalogRepository) CreateServicio(s *models.Servicio) error {
 	if m.SimulateError {
 		return errors.New("db error")
@@ -22,6 +21,7 @@ func (m *MockCatalogRepository) CreateServicio(s *models.Servicio) error {
 	return nil
 }
 
+// GetServicios Simula la consulta de todos los servicios. Devuelve una lista de ejemplo o un error controlado.
 func (m *MockCatalogRepository) GetServicios() ([]models.Servicio, error) {
 	if m.SimulateError {
 		return nil, errors.New("db error")
@@ -29,6 +29,7 @@ func (m *MockCatalogRepository) GetServicios() ([]models.Servicio, error) {
 	return []models.Servicio{{Nombre: "Corte Clasico", Precio: 5, Duracion: 30}}, nil
 }
 
+// GetServicioByID Simula la búsqueda de un servicio por ID. El ID 999 representa un registro inexistente.
 func (m *MockCatalogRepository) GetServicioByID(id uint) (models.Servicio, error) {
 	if m.SimulateError || id == 999 {
 		return models.Servicio{}, errors.New("not found")
@@ -36,6 +37,7 @@ func (m *MockCatalogRepository) GetServicioByID(id uint) (models.Servicio, error
 	return models.Servicio{Nombre: "Corte Clasico", Precio: 5, Duracion: 30}, nil
 }
 
+// UpdateServicio Simula la actualización de un servicio y permite provocar un error del repositorio.
 func (m *MockCatalogRepository) UpdateServicio(s *models.Servicio) error {
 	if m.SimulateError {
 		return errors.New("db error")
@@ -43,6 +45,7 @@ func (m *MockCatalogRepository) UpdateServicio(s *models.Servicio) error {
 	return nil
 }
 
+// DeleteServicio Simula la eliminación de un servicio por ID.
 func (m *MockCatalogRepository) DeleteServicio(id uint) error {
 	if m.SimulateError {
 		return errors.New("db error")
@@ -50,6 +53,7 @@ func (m *MockCatalogRepository) DeleteServicio(id uint) error {
 	return nil
 }
 
+// CreateCategoria Simula la creación de una categoría y le asigna un ID.
 func (m *MockCatalogRepository) CreateCategoria(c *models.CategoriaServicio) error {
 	if m.SimulateError {
 		return errors.New("db error")
@@ -58,6 +62,7 @@ func (m *MockCatalogRepository) CreateCategoria(c *models.CategoriaServicio) err
 	return nil
 }
 
+// GetCategorias Simula la consulta de todas las categorías.
 func (m *MockCatalogRepository) GetCategorias() ([]models.CategoriaServicio, error) {
 	if m.SimulateError {
 		return nil, errors.New("db error")
@@ -65,6 +70,7 @@ func (m *MockCatalogRepository) GetCategorias() ([]models.CategoriaServicio, err
 	return []models.CategoriaServicio{{Nombre: "Cortes"}}, nil
 }
 
+// GetCategoriaByID Simula la búsqueda de una categoría por ID; el ID 999 representa que no existe.
 func (m *MockCatalogRepository) GetCategoriaByID(id uint) (models.CategoriaServicio, error) {
 	if m.SimulateError || id == 999 {
 		return models.CategoriaServicio{}, errors.New("not found")
@@ -72,6 +78,7 @@ func (m *MockCatalogRepository) GetCategoriaByID(id uint) (models.CategoriaServi
 	return models.CategoriaServicio{Nombre: "Cortes"}, nil
 }
 
+// UpdateCategoria Simula la actualización de una categoría.
 func (m *MockCatalogRepository) UpdateCategoria(c *models.CategoriaServicio) error {
 	if m.SimulateError {
 		return errors.New("db error")
@@ -79,6 +86,7 @@ func (m *MockCatalogRepository) UpdateCategoria(c *models.CategoriaServicio) err
 	return nil
 }
 
+// DeleteCategoria Simula la eliminación de una categoría.
 func (m *MockCatalogRepository) DeleteCategoria(id uint) error {
 	if m.SimulateError {
 		return errors.New("db error")
@@ -86,6 +94,7 @@ func (m *MockCatalogRepository) DeleteCategoria(id uint) error {
 	return nil
 }
 
+// CreatePromocion Simula la creación de una promoción y le asigna un ID.
 func (m *MockCatalogRepository) CreatePromocion(p *models.Promocion) error {
 	if m.SimulateError {
 		return errors.New("db error")
@@ -94,6 +103,7 @@ func (m *MockCatalogRepository) CreatePromocion(p *models.Promocion) error {
 	return nil
 }
 
+// GetPromociones Simula la consulta de todas las promociones.
 func (m *MockCatalogRepository) GetPromociones() ([]models.Promocion, error) {
 	if m.SimulateError {
 		return nil, errors.New("db error")
@@ -101,6 +111,7 @@ func (m *MockCatalogRepository) GetPromociones() ([]models.Promocion, error) {
 	return []models.Promocion{{Nombre: "Promo Corte", Descuento: 10}}, nil
 }
 
+// GetPromocionByID Simula la búsqueda de una promoción por ID; el ID 999 representa que no existe.
 func (m *MockCatalogRepository) GetPromocionByID(id uint) (models.Promocion, error) {
 	if m.SimulateError || id == 999 {
 		return models.Promocion{}, errors.New("not found")
@@ -108,6 +119,7 @@ func (m *MockCatalogRepository) GetPromocionByID(id uint) (models.Promocion, err
 	return models.Promocion{Nombre: "Promo Corte", Descuento: 10}, nil
 }
 
+// UpdatePromocion Simula la actualización de una promoción.
 func (m *MockCatalogRepository) UpdatePromocion(p *models.Promocion) error {
 	if m.SimulateError {
 		return errors.New("db error")
@@ -115,6 +127,7 @@ func (m *MockCatalogRepository) UpdatePromocion(p *models.Promocion) error {
 	return nil
 }
 
+// DeletePromocion Simula la eliminación de una promoción.
 func (m *MockCatalogRepository) DeletePromocion(id uint) error {
 	if m.SimulateError {
 		return errors.New("db error")
@@ -124,6 +137,7 @@ func (m *MockCatalogRepository) DeletePromocion(id uint) error {
 
 // ================= SERVICIOS =================
 
+// TestCreateServicio_Valido Comprueba que un servicio con nombre, precio y duración válidos pueda crearse.
 func TestCreateServicio_Valido(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -139,6 +153,7 @@ func TestCreateServicio_Valido(t *testing.T) {
 	}
 }
 
+// TestCreateServicio_Invalido Comprueba que el Service rechace un servicio con datos inválidos.
 func TestCreateServicio_Invalido(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -154,6 +169,7 @@ func TestCreateServicio_Invalido(t *testing.T) {
 	}
 }
 
+// TestCreateServicio_ErrorRepositorio Comprueba que el Service maneje correctamente un error del repositorio al crear.
 func TestCreateServicio_ErrorRepositorio(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{SimulateError: true})
 
@@ -169,6 +185,7 @@ func TestCreateServicio_ErrorRepositorio(t *testing.T) {
 	}
 }
 
+// TestGetServicios_Exitoso Comprueba que se pueda obtener una lista de servicios.
 func TestGetServicios_Exitoso(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -181,6 +198,7 @@ func TestGetServicios_Exitoso(t *testing.T) {
 	}
 }
 
+// TestGetServicios_Error Comprueba que se propague el error cuando falla la consulta de servicios.
 func TestGetServicios_Error(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{SimulateError: true})
 
@@ -190,6 +208,7 @@ func TestGetServicios_Error(t *testing.T) {
 	}
 }
 
+// TestGetServicioByID_Exitoso Comprueba que un servicio existente pueda encontrarse por su ID.
 func TestGetServicioByID_Exitoso(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -202,6 +221,7 @@ func TestGetServicioByID_Exitoso(t *testing.T) {
 	}
 }
 
+// TestGetServicioByID_NoEncontrado Comprueba el comportamiento cuando el servicio solicitado no existe.
 func TestGetServicioByID_NoEncontrado(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -211,6 +231,7 @@ func TestGetServicioByID_NoEncontrado(t *testing.T) {
 	}
 }
 
+// TestUpdateServicio_Exitoso Comprueba que un servicio válido pueda actualizarse.
 func TestUpdateServicio_Exitoso(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -226,6 +247,7 @@ func TestUpdateServicio_Exitoso(t *testing.T) {
 	}
 }
 
+// TestUpdateServicio_Error Comprueba que se maneje un error del repositorio al actualizar.
 func TestUpdateServicio_Error(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{SimulateError: true})
 
@@ -235,6 +257,7 @@ func TestUpdateServicio_Error(t *testing.T) {
 	}
 }
 
+// TestDeleteServicio_Exitoso Comprueba que un servicio pueda eliminarse correctamente.
 func TestDeleteServicio_Exitoso(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -244,6 +267,7 @@ func TestDeleteServicio_Exitoso(t *testing.T) {
 	}
 }
 
+// TestDeleteServicio_Error Comprueba que se maneje un error del repositorio al eliminar.
 func TestDeleteServicio_Error(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{SimulateError: true})
 
@@ -255,6 +279,7 @@ func TestDeleteServicio_Error(t *testing.T) {
 
 // ================= CATEGORÍAS =================
 
+// TestCreateCategoria_Valida Comprueba que una categoría con nombre válido pueda crearse.
 func TestCreateCategoria_Valida(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -268,6 +293,7 @@ func TestCreateCategoria_Valida(t *testing.T) {
 	}
 }
 
+// TestCreateCategoria_Invalida Comprueba que una categoría sin nombre sea rechazada.
 func TestCreateCategoria_Invalida(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -277,6 +303,7 @@ func TestCreateCategoria_Invalida(t *testing.T) {
 	}
 }
 
+// TestGetCategorias_Exitoso Comprueba que se pueda obtener una lista de categorías.
 func TestGetCategorias_Exitoso(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -289,6 +316,7 @@ func TestGetCategorias_Exitoso(t *testing.T) {
 	}
 }
 
+// TestGetCategoriaByID_Exitoso Comprueba que una categoría existente pueda encontrarse por ID.
 func TestGetCategoriaByID_Exitoso(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -298,6 +326,7 @@ func TestGetCategoriaByID_Exitoso(t *testing.T) {
 	}
 }
 
+// TestGetCategoriaByID_NoEncontrada Comprueba el comportamiento cuando la categoría no existe.
 func TestGetCategoriaByID_NoEncontrada(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -307,6 +336,7 @@ func TestGetCategoriaByID_NoEncontrada(t *testing.T) {
 	}
 }
 
+// TestUpdateCategoria_Exitoso Comprueba que una categoría pueda actualizarse.
 func TestUpdateCategoria_Exitoso(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -316,6 +346,7 @@ func TestUpdateCategoria_Exitoso(t *testing.T) {
 	}
 }
 
+// TestDeleteCategoria_Exitoso Comprueba que una categoría pueda eliminarse.
 func TestDeleteCategoria_Exitoso(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -327,6 +358,7 @@ func TestDeleteCategoria_Exitoso(t *testing.T) {
 
 // ================= PROMOCIONES =================
 
+// TestCreatePromocion_Valida Comprueba que una promoción válida pueda crearse.
 func TestCreatePromocion_Valida(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -341,6 +373,7 @@ func TestCreatePromocion_Valida(t *testing.T) {
 	}
 }
 
+// TestCreatePromocion_Invalida Comprueba que una promoción sin nombre o descuento válido sea rechazada.
 func TestCreatePromocion_Invalida(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -355,6 +388,7 @@ func TestCreatePromocion_Invalida(t *testing.T) {
 	}
 }
 
+// TestGetPromociones_Exitoso Comprueba que se pueda obtener una lista de promociones.
 func TestGetPromociones_Exitoso(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -367,6 +401,7 @@ func TestGetPromociones_Exitoso(t *testing.T) {
 	}
 }
 
+// TestGetPromocionByID_Exitoso Comprueba que una promoción existente pueda encontrarse por ID.
 func TestGetPromocionByID_Exitoso(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -376,6 +411,7 @@ func TestGetPromocionByID_Exitoso(t *testing.T) {
 	}
 }
 
+// TestGetPromocionByID_NoEncontrada Comprueba el comportamiento cuando la promoción no existe.
 func TestGetPromocionByID_NoEncontrada(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -385,6 +421,7 @@ func TestGetPromocionByID_NoEncontrada(t *testing.T) {
 	}
 }
 
+// TestUpdatePromocion_Exitoso Comprueba que una promoción pueda actualizarse.
 func TestUpdatePromocion_Exitoso(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
@@ -394,6 +431,7 @@ func TestUpdatePromocion_Exitoso(t *testing.T) {
 	}
 }
 
+// TestDeletePromocion_Exitoso Comprueba que una promoción pueda eliminarse.
 func TestDeletePromocion_Exitoso(t *testing.T) {
 	service := NewCatalogService(&MockCatalogRepository{})
 
