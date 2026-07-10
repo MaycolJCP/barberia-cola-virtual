@@ -57,3 +57,4 @@ func (s *PerfilService) GetPreferenciasCliente(clienteID uint) (models.Preferenc
 	pref, err := s.repo.GetPreferenciasClienteByCliente(clienteID)
 	return pref, err == nil
 }
+
