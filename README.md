@@ -12,7 +12,7 @@ Barbería Cola Virtual es una API REST desarrollada en Go que permite administra
 |------------    |--------|
 | Danny Zambrano | Catálogo de Servicios |
 | (Nombre compañero) | Autenticación y Usuarios |
-| (Nombre compañero) | Turnos y Seguimiento |
+| Michael Cedeño | Turnos y Seguimiento |
 
 ---
 
